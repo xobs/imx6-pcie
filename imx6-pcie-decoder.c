@@ -12,6 +12,45 @@ static volatile short *mem_16 = 0;
 static volatile char *mem_8 = 0;
 static int *prev_mem_range = 0;
 
+static const char *ltssm_states[] = {
+	"S_DETECT_QUIET", // 0x00
+	"S_DETECT_ACT", // 0x01
+	"S_POLL_ACTIVE", // 0x02
+	"S_POLL_COMPLIANCE", // 0x03
+	"S_POLL_CONFIG", // 0x04
+	"S_PRE_DETECT_QUIET", // 0x05
+	"S_DETECT_WAIT", // 0x06
+	"S_CFG_LINKWD_START", // 0x07
+	"S_CFG_LINKWD_ACEPT", // 0x08
+	"S_CFG_LANENUM_WAIT", // 0x09
+	"S_CFG_LANENUM_ACEPT", // 0x0A
+	"S_CFG_COMPLETE", // 0x0B
+	"S_CFG_IDLE", // 0x0C
+	"S_RCVRY_LOCK", // 0x0D
+	"S_RCVRY_SPEED", // 0x0E
+	"S_RCVRY_RCVRCFG", // 0x0F
+	"S_RCVRY_IDLE", // 0x10
+	"S_L0", // 0x11
+	"S_L0S", // 0x12
+	"S_L123_SEND_EIDLE", // 0x13
+	"S_L1_IDLE", // 0x14
+	"S_L2_IDLE", // 0x15
+	"S_L2_WAKE", // 0x16
+	"S_DISABLED_ENTRY", // 0x17
+	"S_DISABLED_IDLE", // 0x18
+	"S_DISABLED", // 0x19
+	"S_LPBK_ENTRY", // 0x1A
+	"S_LPBK_ACTIVE", // 0x1B
+	"S_LPBK_EXIT", // 0x1C
+	"S_LPBK_EXIT_TIMEOUT", // 0x1D
+	"S_HOT_RESET_ENTRY", // 0x1E
+	"S_HOT_RESET", // 0x1F
+	"S_RCVRY_EQ0", // 0x20
+	"S_RCVRY_EQ1", // 0x21
+	"S_RCVRY_EQ2", // 0x22
+	"S_RCVRY_EQ3", // 0x23
+};
+
 static int map_offset(long offset, int virtualized) {
     int *mem_range = (int *)(offset & ~0xFFFF);
     if( mem_range != prev_mem_range ) {
@@ -93,7 +132,8 @@ int main(int argc, char **argv) {
     }
 	    
 
-    printf("LTSSM current state: 0x%x\n", (debug0>>0) & 0x3f);
+    printf("LTSSM current state: 0x%x (%s)\n", (debug0>>0) & 0x3f,
+		    ltssm_states[(debug0>>0) & 0x3f]);
     printf("PIPE transmit K indication: %d\n", (debug0>>6) & 3);
     printf("PIPE Transmit data: 0x%x\n", (debug0>>8) & 0xffff);
     printf("Receiver is receiving logical idle: %s\n", yesno((debug0>>25)&1));
